@@ -22,7 +22,7 @@
 #include <pwd.h>
 
 #define MAX_PW_NAME_LEN 32
-#define MAX_UID 9999
+#define DEFAULT_MAX_UID 10499
 #define USER_DB_FILE "users.db"
 
 /* Drop the table */
@@ -85,7 +85,7 @@ out:
     return ret;
 }
 
-int process(sqlite3* pDb)
+int process(sqlite3* pDb, int max_uid)
 {
     int uid = 0;
     int i = 0;
@@ -94,7 +94,9 @@ int process(sqlite3* pDb)
 
     fprintf(stdout, "Generating User table...\n");
 
-    for (i = 0; i < MAX_UID; i++)
+
+
+    for (i = 0; i < max_uid; i++)
     {
         pw = getpwuid(i);
 
@@ -105,7 +107,7 @@ int process(sqlite3* pDb)
     }
 }
 
-int makeDatabase()
+int makeDatabase(int max_uid)
 {
     int ret = 0;
     sqlite3* pDb = NULL;
@@ -140,7 +142,7 @@ int makeDatabase()
     }
 
     // No error checking :(
-    ret = process(pDb);
+    ret = process(pDb, max_uid);
 
 closedb:
     if (SQLITE_OK != (ret = closeDatabase(pDb)))
@@ -156,5 +158,12 @@ out:
 
 int main(int argc, char **argv)
 {
-    return makeDatabase();
+    int max_uid = 0;
+
+    if (argc == 1)
+        max_uid = DEFAULT_MAX_UID;
+    else
+        max_uid = atoi(argv[1]);
+
+    return makeDatabase(max_uid);
 }
