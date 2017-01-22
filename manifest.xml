@@ -1,0 +1,24 @@
+<Items>
+   <Item type="module"
+          name="userdb"
+          version="1.0.0"
+          health="stable"
+          author="Jake Valletta (jakev)"
+          about="Manipulate Linux user's DB."
+          localName="userdb" />
+
+    <Item type="library"
+          name="UserDb"
+          about="User Database API"
+          version="1.0.0"
+          health="stable"
+          author="Jake Valletta (jakev)"
+          localName="UserDb" />
+
+    <Item type="package"
+          name="MakeUserDb"
+          version="1.0.0"
+          health="stable"
+          author="Jake Valletta (jakev)"
+          localName="makeuserdb/bins" />
+</Items>

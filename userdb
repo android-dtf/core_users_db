@@ -49,9 +49,9 @@ class userdb(Module):
 
     about = "Manipulate Linux user's DB."
     author = 'Jake Valletta (jakev)'
-    health = 'beta'
+    health = 'stable'
     name = 'userdb'
-    version = '1.0'
+    version = '1.0.0'
 
     def usage(self):
 
