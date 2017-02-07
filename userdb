@@ -17,7 +17,13 @@
 #
 """Linux Users Manipulation"""
 
+from __future__ import absolute_import
+from __future__ import print_function
 from argparse import ArgumentParser
+
+import re
+import os
+import os.path
 
 import dtf.logging as log
 import dtf.properties as prop
@@ -30,18 +36,11 @@ from dtf.module import Module
 
 import UserDb
 
-import re
-import os
-import os.path
-
 TAG = "userdb"
 
 USERS_DB_NAME = 'users.db'
-DEFAULT_EXTERNAL_PATH = '/mnt/sdcard'
-COPY_FILE_CMD = ('am startservice -a com.dtf.action.name.COPY_TO_SDCARD '
-                 '--es filename "users.db"')
-
 USERDB_PACKAGE = 'MakeUserDb'
+
 
 class userdb(Module):
 
@@ -57,13 +56,13 @@ class userdb(Module):
 
         """Usage message"""
 
-        print "userdb v%s" % self.version
-        print ""
-        print "Submodules:"
-        print "    create     Create the user database."
-        print "    diff       Diff user DB against another project."
-        print "    list       Display all Linux user information."
-        print ""
+        print("userdb v%s" % self.version)
+        print("")
+        print("Submodules:")
+        print("    create     Create the user database.")
+        print("    diff       Diff user DB against another project.")
+        print("    list       Display all Linux user information.")
+        print("")
 
         return 0
 
@@ -85,11 +84,11 @@ class userdb(Module):
 
             if prop_diff_dir is not None:
                 diff_users_db = "%s/.dbs/%s" % (prop_diff_dir,
-                                                  USERS_DB_NAME)
+                                                USERS_DB_NAME)
 
                 if not os.path.isfile(diff_users_db):
-                    log.e(TAG, "Diff DB '%s' doesn't exist!" %
-                                                 diff_users_db)
+                    log.e(TAG, "Diff DB '%s' doesn't exist!"
+                          % diff_users_db)
                     return None
                 else:
                     return diff_users_db
@@ -100,26 +99,27 @@ class userdb(Module):
                     log.e(TAG, "Missing diffing data for this API!")
                     return None
 
-                diff_users_db = ("%s/aosp-data-%s/.dbs/%s" %
-                                         (DTF_PACKAGES_DIR,
-                                          prop.get_prop("Info", "sdk"),
-                                          USERS_DB_NAME))
+                diff_users_db = ("%s/aosp-data-%s/.dbs/%s"
+                                 % (DTF_PACKAGES_DIR,
+                                    prop.get_prop("Info", "sdk"),
+                                    USERS_DB_NAME))
 
                 return diff_users_db
 
         # It is set, use it.
         else:
             diff_users_db = "%s/.dbs/%s" % (args_diff_dir,
-                                               USERS_DB_NAME)
+                                            USERS_DB_NAME)
 
             if not os.path.isfile(diff_users_db):
-                log.e(TAG, "Diff DB '%s' doesn't exist!" %
-                                               diff_users_db)
+                log.e(TAG, "Diff DB '%s' doesn't exist!"
+                      % diff_users_db)
                 return None
             else:
                 return diff_users_db
 
-    def add_shared_users(self, adb, local_db_name):
+    @classmethod
+    def add_shared_users(cls, adb, local_db_name):
 
         """Add the shared users from dumpsys output"""
 
@@ -138,12 +138,12 @@ class userdb(Module):
 
             if line.find("SharedUser") != -1:
                 matched = re.search("\[[a-zA-Z0-9_\-]*(\.[a-zA-Z0-9_\-]*)*\]",
-                                                                line).group(0)
+                                    line).group(0)
                 shared_id_name = matched.replace('[', '').replace(']', '')
 
             elif line.find("userId") != -1:
                 shared_id_user_id = int(re.search("(userId=)([0-9]*)",
-                                                                line).group(2))
+                                                  line).group(2))
 
                 log.d(TAG, "Adding shared user: %s" % shared_id_name)
                 shared_ids.append((shared_id_name, shared_id_user_id))
@@ -160,7 +160,7 @@ class userdb(Module):
 
         diff_users = [user['name'] for user in diff_db.getUsers()]
 
-        print " User Id | Hex Id |      User Name"
+        print(" User Id | Hex Id |      User Name")
 
         for user in local_db.getUsers():
 
@@ -171,7 +171,8 @@ class userdb(Module):
                 line = "    "
             else:
                 line = "[+] "
-            print "%s%4d | %6s |%15s" % (line, user_id, hex(user_id), user_name)
+            print("%s%4d | %6s |%15s"
+                  % (line, user_id, hex(user_id), user_name))
 
         return 0
 
@@ -189,12 +190,12 @@ class userdb(Module):
 
         if int(sdk) > 15:
             local_mkuserdb_bin = ("%s/%s/makeuserdb-arm-jb"
-                                            % (DTF_PACKAGES_DIR,
-                                               USERDB_PACKAGE))
+                                  % (DTF_PACKAGES_DIR,
+                                     USERDB_PACKAGE))
         else:
             local_mkuserdb_bin = ("%s/%s/makeuserdb-arm-ics"
-                                            % (DTF_PACKAGES_DIR,
-                                               USERDB_PACKAGE))
+                                  % (DTF_PACKAGES_DIR,
+                                     USERDB_PACKAGE))
 
         users_db_name = "%s/%s" % (dtf_data_dir, USERS_DB_NAME)
         local_users_db_name = "%s/%s/%s" % (prop.TOP, db_dir, USERS_DB_NAME)
@@ -238,7 +239,7 @@ class userdb(Module):
         """Command to diff"""
 
         parser = ArgumentParser(prog='userdb diff',
-                            description='Compare Linux user(s).')
+                                description='Compare Linux user(s).')
         parser.add_argument('--diff-dir', metavar="diff_dir", type=str,
                             default=None,
                             help='Diff against data in dir.')
@@ -247,7 +248,6 @@ class userdb(Module):
                             help='Print only new users.')
 
         parsed_args = parser.parse_args(args)
-
 
         db_dir = prop.get_prop('Local', 'db-dir')
         local_users_db_name = "%s/%s/%s" % (prop.TOP, db_dir, USERS_DB_NAME)
@@ -268,8 +268,8 @@ class userdb(Module):
 
         return self.do_diff(local_users_db, diff_users_db)
 
-
-    def cmd_list(self):
+    @classmethod
+    def cmd_list(cls):
 
         """Command to list DB"""
 
@@ -278,14 +278,13 @@ class userdb(Module):
 
         users_db = UserDb.UserDb(local_users_db_name, safe=True)
 
-        print "User Id | Hex Id |      User Name"
+        print("User Id | Hex Id |      User Name")
 
         for user in users_db.getUsers():
 
             user_id = int(user['id'])
             user_name = user['name']
-            print "%7d | %6s |%15s" % (user_id, hex(user_id), user_name)
-
+            print("%7d | %6s |%15s" % (user_id, hex(user_id), user_name))
 
     def execute(self, args):
 
@@ -303,4 +302,3 @@ class userdb(Module):
             return self.cmd_create()
         else:
             return self.usage()
-
