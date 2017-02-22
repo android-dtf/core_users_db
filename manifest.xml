@@ -20,5 +20,6 @@
           version="1.0.0"
           health="stable"
           author="Jake Valletta (jakev)"
-          localName="makeuserdb/bins" />
+          localName="makeuserdb/bins"
+          installName="MakeUserDb" />
 </Items>
